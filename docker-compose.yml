@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sentinel}
+      POSTGRES_USER: ${POSTGRES_USER:-sentinel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
+    volumes:
+      - sentinel_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sentinel}:${POSTGRES_PASSWORD:-devpassword}@db:5432/${POSTGRES_DB:-sentinel}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3020}
+      PYTHONPATH: /app
+      SENTINEL_ENV: ${SENTINEL_ENV:-dev}
+      JWT_SECRET: ${JWT_SECRET:-dev-change-me}
+      JWT_ISSUER: ${JWT_ISSUER:-sentinel}
+      ACCESS_TOKEN_EXPIRES_MINUTES: ${ACCESS_TOKEN_EXPIRES_MINUTES:-1440}
+      STALE_THRESHOLD_MINUTES: ${STALE_THRESHOLD_MINUTES:-5}
+      RESULT_RETENTION_COUNT: ${RESULT_RETENTION_COUNT:-1000}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8020:8000"
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8020}
+    depends_on:
+      - backend
+    ports:
+      - "3020:3000"
+    volumes:
+      - ./frontend:/app
+      - sentinel_frontend_node_modules:/app/node_modules
+
+volumes:
+  sentinel_postgres:
+  sentinel_frontend_node_modules:
