@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -155,7 +155,7 @@ async def update_host(
     )
 
 
-@router.delete("/{host_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{host_id}", status_code=status.HTTP_204_NO_CONTENT, response_class=Response)
 async def delete_host(
     host_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
