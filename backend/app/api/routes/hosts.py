@@ -160,7 +160,7 @@ async def delete_host(
     host_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
     _user=Depends(get_current_user),
-) -> None:
+):
     result = await db.execute(select(Host).where(Host.id == host_id))
     host = result.scalar_one_or_none()
     if not host:
@@ -168,3 +168,4 @@ async def delete_host(
 
     await db.delete(host)
     await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

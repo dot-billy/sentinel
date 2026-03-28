@@ -84,7 +84,7 @@ async def delete_api_key(
     key_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
     _user=Depends(get_current_user),
-) -> None:
+):
     result = await db.execute(select(ApiKey).where(ApiKey.id == key_id))
     key = result.scalar_one_or_none()
     if not key:
@@ -92,3 +92,4 @@ async def delete_api_key(
 
     key.is_active = False
     await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
