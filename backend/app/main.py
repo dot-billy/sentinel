@@ -8,7 +8,13 @@ from app.core.config import settings
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Sentinel API", version="0.1.0")
+    app = FastAPI(
+        title="Sentinel API",
+        version="0.1.0",
+        docs_url="/api/docs",
+        redoc_url="/api/redoc",
+        openapi_url="/api/openapi.json",
+    )
 
     origins = [settings.frontend_origin.rstrip("/")]
     if settings.sentinel_env == "dev":

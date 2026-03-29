@@ -13,3 +13,4 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
+    is_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")

@@ -53,7 +53,17 @@ export interface UserPublic {
   id: string;
   email: string;
   is_active: boolean;
+  is_admin: boolean;
   created_at: string;
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  is_active: boolean;
+  is_admin: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface DashboardSummary {
@@ -219,6 +229,29 @@ export const api = {
     },
     delete(id: string) {
       return request<void>(`/api/v1/api-keys/${id}`, { method: "DELETE" });
+    },
+  },
+  users: {
+    list() {
+      return request<AdminUser[]>("/api/v1/users");
+    },
+    create(data: { email: string; password: string; is_admin?: boolean }) {
+      return request<AdminUser>("/api/v1/users", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+    update(id: string, data: { is_active?: boolean; is_admin?: boolean }) {
+      return request<AdminUser>(`/api/v1/users/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+    },
+    changePassword(id: string, data: { new_password: string }) {
+      return request<AdminUser>(`/api/v1/users/${id}/change-password`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
     },
   },
 };

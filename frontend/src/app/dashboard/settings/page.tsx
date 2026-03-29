@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { api, type ApiKeyPublic, type ApiKeyCreated } from "@/lib/api";
+import { api, type ApiKeyPublic, type ApiKeyCreated, type HostPublic } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,8 @@ export default function SettingsPage() {
   const [newKeyName, setNewKeyName] = useState("");
   const [creating, setCreating] = useState(false);
   const [createdKey, setCreatedKey] = useState<ApiKeyCreated | null>(null);
+  const [hosts, setHosts] = useState<HostPublic[]>([]);
+  const [selectedHostId, setSelectedHostId] = useState<string>("");
 
   const loadKeys = useCallback(async () => {
     try {
@@ -30,6 +32,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadKeys();
+    api.hosts.list().then(setHosts).catch(() => {});
   }, [loadKeys]);
 
   async function handleCreate(e: React.FormEvent) {
@@ -37,9 +40,13 @@ export default function SettingsPage() {
     if (!newKeyName.trim()) return;
     setCreating(true);
     try {
-      const key = await api.apiKeys.create({ name: newKeyName.trim() });
+      const key = await api.apiKeys.create({
+        name: newKeyName.trim(),
+        host_id: selectedHostId || null,
+      });
       setCreatedKey(key);
       setNewKeyName("");
+      setSelectedHostId("");
       loadKeys();
     } catch {
       // ignore
@@ -71,6 +78,16 @@ export default function SettingsPage() {
               onChange={(e) => setNewKeyName(e.target.value)}
               className="flex-1"
             />
+            <select
+              value={selectedHostId}
+              onChange={(e) => setSelectedHostId(e.target.value)}
+              className="rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2 text-sm"
+            >
+              <option value="">All hosts (global)</option>
+              {hosts.map((h) => (
+                <option key={h.id} value={h.id}>{h.name}</option>
+              ))}
+            </select>
             <Button type="submit" disabled={creating || !newKeyName.trim()}>
               {creating ? <Spinner /> : "Create"}
             </Button>

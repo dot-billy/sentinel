@@ -42,7 +42,7 @@ async def main() -> None:
             print(f"User {email} already exists.")
             sys.exit(1)
 
-        user = User(email=email, password_hash=hash_password(password))
+        user = User(email=email, password_hash=hash_password(password), is_admin=True)
         db.add(user)
         await db.commit()
         print(f"Admin user {email} created successfully.")

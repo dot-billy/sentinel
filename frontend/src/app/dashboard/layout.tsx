@@ -6,14 +6,18 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Server, AlertTriangle, Settings, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Server, AlertTriangle, Settings, LogOut, Menu, X, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/hosts", label: "Hosts", icon: Server },
   { href: "/dashboard/alerts", label: "Alerts", icon: AlertTriangle },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
+];
+
+const ADMIN_NAV_ITEMS = [
+  { href: "/dashboard/users", label: "Users", icon: Users },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -38,13 +42,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return exact ? pathname === href : pathname.startsWith(href);
   }
 
+  const navItems = [...BASE_NAV_ITEMS, ...(user.is_admin ? ADMIN_NAV_ITEMS : [])];
+
   const sidebar = (
     <nav className="flex h-full flex-col">
       <div className="p-4 border-b border-[hsl(var(--border))]">
         <h1 className="text-lg font-bold">Sentinel</h1>
       </div>
       <div className="flex-1 space-y-1 p-3">
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
