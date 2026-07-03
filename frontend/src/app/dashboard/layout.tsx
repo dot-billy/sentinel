@@ -9,14 +9,21 @@ import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Server, AlertTriangle, Settings, LogOut, Menu, X, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const BASE_NAV_ITEMS = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+};
+
+const BASE_NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/hosts", label: "Hosts", icon: Server },
   { href: "/dashboard/alerts", label: "Alerts", icon: AlertTriangle },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
-const ADMIN_NAV_ITEMS = [
+const ADMIN_NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/users", label: "Users", icon: Users },
 ];
 
